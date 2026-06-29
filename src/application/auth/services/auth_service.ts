@@ -4,6 +4,7 @@ import { User } from '../../../domain/auth/entities/user';
 import { UserRepository } from '../../../domain/auth/repositories/user_repository';
 import { UserRepositoryImpl } from '../../../infrastructure/database/repositories/user_repository_impl';
 import { RegisterDto } from '../dtos/register_dto';
+import { LoginDto } from '../dtos/login_dto';
 import { env } from '../../../config/env';
 import { AppError } from '../../../domain/shared/exceptions/app_error';
 
@@ -36,5 +37,25 @@ export class AuthService {
     );
 
     return { user: savedUser, token };
+  }
+
+  async login(data: LoginDto): Promise<{ user: User; token: string }> {
+    const user = await this.userRepo.findByEmail(data.email);
+    if (!user) {
+      throw new AppError('Credenciales inválidas', 401, 'INVALID_CREDENTIALS');
+    }
+
+    const valid = await argon2.verify(user.passwordHash, data.password);
+    if (!valid) {
+      throw new AppError('Credenciales inválidas', 401, 'INVALID_CREDENTIALS');
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      env.JWT_ACCESS_SECRET,
+      { expiresIn: env.JWT_ACCESS_EXPIRES_IN } as jwt.SignOptions
+    );
+
+    return { user, token };
   }
 }

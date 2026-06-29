@@ -5,10 +5,8 @@ import { UserRepository } from '../../../domain/auth/repositories/user_repositor
 import { User } from '../../../domain/auth/entities/user';
 
 export class UserRepositoryImpl implements UserRepository {
-  private repo: Repository<UserEntity>;
-
-  constructor() {
-    this.repo = AppDataSource.getRepository(UserEntity);
+  private get repo(): Repository<UserEntity> {
+    return AppDataSource.getRepository(UserEntity);
   }
 
   private toDomain(entity: UserEntity): User {

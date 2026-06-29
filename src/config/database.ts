@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { UserEntity } from '../infrastructure/database/entities/user_entity';
 import { env } from './env';
 
 // Usa las variables de entorno validadas desde env.ts
@@ -15,7 +14,7 @@ export const AppDataSource = new DataSource({
   database: DB_NAME,
   synchronize: false,
   logging: NODE_ENV === 'development',
-  entities: [UserEntity],
+  entities: ['src/infrastructure/database/entities/**/*.ts'],
   migrations: ['src/infrastructure/database/migrations/**/*.ts'],
   subscribers: [],
 });
